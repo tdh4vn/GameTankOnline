@@ -4,6 +4,8 @@
 
 class Tank{
     constructor(x, y){
+        this.isShoot = false;
+        this.bullets = new Array();
         this.x = x;
         this.y = y;
         this.speedX = 0;
@@ -23,9 +25,15 @@ class Tank{
     update(){
         this.x += this.speedX;
         this.y += this.speedY;
+         for(var i = 0; i < this.bullets.length; i++){
+            this.bullets[i].update();
+        }
     }
     draw(context){
         context.drawImage(this.sprite, this.x, this.y);
+        for(var i = 0; i < this.bullets.length; i++){
+            this.bullets[i].draw(context);
+        }
     }
     move(direction){
         switch (direction){
@@ -54,5 +62,10 @@ class Tank{
                 this.direction = 4;
                 break;
         }
+    }
+    
+    shoot(){
+        this.isShoot = true;
+        this.bullets.push(new Bullet(this.x+13, this.y+13, this.direction));
     }
 }
