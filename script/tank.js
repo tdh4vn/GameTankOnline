@@ -4,8 +4,8 @@
 
 class Tank{
     constructor(x, y){
-        this.isShoot = false;
-        this.bullets = new Array();
+        this.readyShot = true;
+        this.bullet;
         this.x = x;
         this.y = y;
         this.speedX = 0;
@@ -22,17 +22,37 @@ class Tank{
         this.sprite = this.spriteUp;
         this.direction = 1;//bien luu huong di chuyen hien tai cua tank
     }
+    checkCollision(rect1, rect2){
+        if (rect1.x < rect2.x + rect2.width &&
+            rect1.x + rect1.width > rect2.x &&
+            rect1.y < rect2.y + rect2.height &&
+            rect1.height + rect1.y > rect2.y) {
+                return true;
+            }
+        return false;
+    }
     update(){
-        this.x += this.speedX;
-        this.y += this.speedY;
-         for(var i = 0; i < this.bullets.length; i++){
-            this.bullets[i].update();
+        var isMove = true;
+        var rect1 = {x:this.x + this.speedX, y:this.y + this.speedY, width:32, height:32};
+        for(var i = 0; i < arrBrick.length; i++){
+            var rect2 = {x:arrBrick[i].x, y: arrBrick[i].y, width:16, height:16};
+            if(this.checkCollision(rect1, rect2) == true){
+                isMove = false;
+                break;
+            }
+        }
+        if(isMove == true){
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        if(this.readyShot == false){
+            this.bullet.update();
         }
     }
     draw(context){
         context.drawImage(this.sprite, this.x, this.y);
-        for(var i = 0; i < this.bullets.length; i++){
-            this.bullets[i].draw(context);
+        if(this.readyShot == false){
+            this.bullet.draw(context);
         }
     }
     move(direction){
@@ -65,7 +85,9 @@ class Tank{
     }
     
     shoot(){
-        this.isShoot = true;
-        this.bullets.push(new Bullet(this.x+13, this.y+13, this.direction));
+        if(this.readyShot == true){
+            this.readyShot = false;
+            this.bullet = new Bullet(this.x+13, this.y+13, this.direction);
+        }
     }
 }

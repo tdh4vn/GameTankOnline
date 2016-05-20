@@ -124,7 +124,5 @@ window.onkeyup = function (e) {
                 player.speedY = 0;
             }
             break;
-        
-            
     }
 };
