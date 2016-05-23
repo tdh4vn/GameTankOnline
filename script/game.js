@@ -5,6 +5,8 @@ var context;
 var map;
 var arrBrick = new Array();
 var arrSteel = new Array();
+var socket;
+var enemyTanks = new Array();
 window.onload = function () {
     var canvas = document.createElement("canvas");
     context = canvas.getContext("2d");
@@ -50,8 +52,26 @@ window.onload = function () {
                  arrSteel.push(steel);
              }
          }
-     }  
+     }
+    initSocketClient();//ham nay viet o phia duoi
 };
+
+function initSocketClient() {
+    socket = io.connect();
+    socket.emit('player_created',{x: player.x, y:player.y});
+    socket.on('info_other_players',function (data) {
+        console.log("My ID " + data.id);
+        for (var i = 0; i < data.tanks.length; i++){
+            var newTank = new Tank(data.tanks[i].x,data.tanks[i].y);
+            enemyTanks.push(newTank);
+        }
+    });
+    socket.on('new_player_connected', function (data) {
+        var newTank = new Tank(data.x,data.y);
+        enemyTanks.push(newTank);
+        socket.emit('tao_dang_o_day', {id:data.id, x: player.x, y: player.y});
+    });
+}
 var player;
 
 var gameLoop = function () {
@@ -69,12 +89,18 @@ function gameStart() {
 
 function gameUpdate() {
     player.update();
+    for(var i = 0; i < enemyTanks.length; i++){
+        enemyTanks[i].update();
+    }
 }
 
 function gameDrawer(context) {
     context.fillStyle = "black";
     context.fillRect(0, 0, window.innerWidth, window.innerHeight);
     player.draw(context);
+    for(var i = 0; i < enemyTanks.length; i++){
+        enemyTanks[i].draw(context);
+    }
     for(var i = 0; i < arrBrick.length; i++){
         arrBrick[i].draw(context);
     }
